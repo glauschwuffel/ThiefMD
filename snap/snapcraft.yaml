@@ -1,0 +1,68 @@
+
+name: thiefmd
+version: 0.0.9
+grade: stable
+adopt-info: thiefmd
+summary: The markdown editor worth stealing.
+license: GPL-3.0+
+description: |
+  Keep your Markdown managed. Write epic tales, keep a journal, or finally write that book report.
+  ThiefMD is a Markdown Editor providing an easy way to organize your markdown documents.
+
+base: core20
+confinement: strict
+
+architectures:
+  - build-on: amd64
+  - build-on: i386
+
+apps:
+  thiefmd:
+    command: usr/bin/com.github.kmwallio.thiefmd
+    plugs:
+      - home
+      - gsettings
+      - x11
+      - network
+    slots:
+      - dbus-daemon
+    common-id: com.github.kmwallio.thiefmd
+    environment:
+      GSETTINGS_SCHEMA_DIR: $SNAP/share/glib-2.0/schemas
+      GTK_USE_PORTAL: "1"
+
+parts:
+  thiefmd:
+    plugin: meson
+    source: https://github.com/kmwallio/ThiefMD.git
+    source-branch: master
+    meson-parameters: [--prefix=/snap/thiefmd/current/usr]
+    build-packages:
+      - valac
+      - cmake
+      - valadoc
+      - libvaladoc-dev
+      - gettext
+      - libgee-0.8-dev
+      - libgtk-3-dev
+      - libgranite-dev
+      - libglib2.0-dev
+      - libgtkspell3-3-dev
+      - libgtksourceview-3.0-dev
+      - libwebkit2gtk-4.0-dev
+      - libmarkdown2-dev
+      - libxml2-dev
+      - libgudev-1.0-dev
+      - libclutter-1.0-dev
+      - libarchive-dev
+    stage-packages:
+      - pandoc
+    organize:
+      snap/foliate/current/usr: usr
+    parse-info: [usr/share/metainfo/com.github.kmwallio.thiefmd.appdata.xml]
+
+slots:
+  dbus-daemon:
+    interface: dbus
+    bus: session
+    name: com.github.kmwallio.thiefmd
