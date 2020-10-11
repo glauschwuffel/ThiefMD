@@ -1,6 +1,6 @@
 
 name: thiefmd
-version: 0.0.9
+version: 0.1.0
 grade: stable
 adopt-info: thiefmd
 summary: The markdown editor worth stealing.
@@ -10,7 +10,7 @@ description: |
   ThiefMD is a Markdown Editor providing an easy way to organize your markdown documents.
 
 base: core20
-confinement: strict
+confinement: devmode
 
 architectures:
   - build-on: amd64
@@ -19,6 +19,7 @@ architectures:
 apps:
   thiefmd:
     command: usr/bin/com.github.kmwallio.thiefmd
+    extensions: [gnome-3-28]
     plugs:
       - home
       - gsettings
@@ -32,13 +33,25 @@ apps:
       GTK_USE_PORTAL: "1"
 
 parts:
+  valac:
+    plugin: nil
+    build-packages:
+      - software-properties-common
+    override-build: |
+      echo "deb http://ppa.launchpad.net/vala-team/next/ubuntu xenial main" | tee /etc/apt/sources.list.d/vala-team.list
+      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 008940d610e4cd892340ab0a4ce987b57daac99c
+      apt update
+      apt upgrade -yy
+    prime: [-*]
   thiefmd:
+    after: [valac]
     plugin: meson
     source: https://github.com/kmwallio/ThiefMD.git
     source-branch: master
     meson-parameters: [--prefix=/snap/thiefmd/current/usr]
     build-packages:
-      - valac
+      - valac-0.48
+      - valac-bin
       - cmake
       - valadoc
       - libvaladoc-dev
@@ -48,7 +61,7 @@ parts:
       - libgranite-dev
       - libglib2.0-dev
       - libgtkspell3-3-dev
-      - libgtksourceview-3.0-dev
+      - libgtksourceview-4-dev
       - libwebkit2gtk-4.0-dev
       - libmarkdown2-dev
       - libxml2-dev
