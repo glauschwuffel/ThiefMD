@@ -7,8 +7,16 @@ title: Tips and Tricks
 
 * [Shortcuts](/shortcuts)
 * [Browsing the UI](/deets)
+* [Export Styles](/tips/export-styles)
 
-## [Jekyll](https://jekyllrb.com/)
+## Linux
+
+* [Linux Writing Tools](/tips/linux-writing-tools)
+
+## Static Site Generators
 
 * [Blogging with Jekyll](/tips/jekyll)
+
+## Novel Writers
+
 * [ThiefMD for Novel Writing](/tips/novel-writing)

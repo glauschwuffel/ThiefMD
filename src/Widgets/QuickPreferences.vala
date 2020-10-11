@@ -26,13 +26,14 @@ namespace ThiefMD.Widgets {
         public Gtk.Entry _file_name;
         public Gtk.Button _create;
         public Gtk.ToggleButton _spellcheck_button;
+        public Gtk.ToggleButton _writegood_button;
         public Gtk.ToggleButton _typewriter_button;
 
         public QuickPreferences () {
             var settings = AppSettings.get_default ();
 
             _typewriter_button = new Gtk.ToggleButton.with_label ((_("Typewriter Scrolling")));
-            _typewriter_button.set_image (new Gtk.Image.from_icon_name ("preferences-desktop-keyboard", Gtk.IconSize.SMALL_TOOLBAR));
+            _typewriter_button.set_image (new Gtk.Image.from_icon_name ("input-keyboard-symbolic", Gtk.IconSize.SMALL_TOOLBAR));
             _typewriter_button.set_always_show_image (true);
             _typewriter_button.tooltip_text = _("Toggle Typewriter Scrolling");
             _typewriter_button.set_active (settings.typewriter_scrolling);
@@ -42,7 +43,7 @@ namespace ThiefMD.Widgets {
             });
 
             _spellcheck_button = new Gtk.ToggleButton.with_label ((_("Check Spelling")));
-            _spellcheck_button.set_image (new Gtk.Image.from_icon_name ("tools-check-spelling", Gtk.IconSize.SMALL_TOOLBAR));
+            _spellcheck_button.set_image (new Gtk.Image.from_icon_name ("tools-check-spelling-symbolic", Gtk.IconSize.SMALL_TOOLBAR));
             _spellcheck_button.set_always_show_image (true);
             _spellcheck_button.tooltip_text = _("Toggle Spellcheck");
             _spellcheck_button.set_active (settings.spellcheck);
@@ -51,7 +52,15 @@ namespace ThiefMD.Widgets {
                 settings.spellcheck = _spellcheck_button.active;
             });
 
-            var separator = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
+            _writegood_button = new Gtk.ToggleButton.with_label ((_("Write Good")));
+            _writegood_button.set_image (new Gtk.Image.from_icon_name ("edit-symbolic", Gtk.IconSize.SMALL_TOOLBAR));
+            _writegood_button.set_always_show_image (true);
+            _writegood_button.tooltip_text = _("Toggle Write Good");
+            _writegood_button.set_active (settings.writegood);
+
+            _writegood_button.toggled.connect (() => {
+                settings.writegood = _writegood_button.active;
+            });
 
             var separator2 = new Gtk.Separator (Gtk.Orientation.HORIZONTAL);
 
@@ -79,7 +88,7 @@ namespace ThiefMD.Widgets {
             about_button.tooltip_text = _("About ThiefMD");
             about_button.clicked.connect (() => {
                 About abt = new About();
-                abt.present ();
+                abt.run ();
             });
 
             var menu_grid = new Gtk.Grid ();
@@ -90,6 +99,7 @@ namespace ThiefMD.Widgets {
             menu_grid.add (_typewriter_button);
             // menu_grid.add (separator);
             menu_grid.add (_spellcheck_button);
+            menu_grid.add (_writegood_button);
             menu_grid.add (separator2);
             menu_grid.add (preview_button);
             menu_grid.add (preferences_button);
@@ -105,6 +115,7 @@ namespace ThiefMD.Widgets {
             var settings = AppSettings.get_default ();
             _typewriter_button.set_active (settings.typewriter_scrolling);
             _spellcheck_button.set_active (settings.spellcheck);
+            _writegood_button.set_active (settings.writegood);
         }
     }
 }

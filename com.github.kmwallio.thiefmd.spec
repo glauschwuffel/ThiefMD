@@ -1,5 +1,5 @@
 Name: com.github.kmwallio.thiefmd
-Version: 0.0.9
+Version: 0.1.0
 Release: 1%{?dist}
 Summary: The markdown editor worth stealing.
 License: GPL-3.0+
@@ -20,7 +20,6 @@ BuildRequires: pkgconfig(glib-2.0)
 BuildRequires: pkgconfig(gobject-2.0)
 BuildRequires: pkgconfig(libarchive)
 BuildRequires: pkgconfig(clutter-1.0)
-BuildRequires: pkgconfig(granite)
 BuildRequires: pkgconfig(gtksourceview-3.0)
 BuildRequires: pkgconfig(gtk+-3.0)
 BuildRequires: pkgconfig(gtkspell3-3.0)
@@ -53,13 +52,6 @@ rm -vf %{buildroot}%{_libdir}/libultheme.a
 
 %files
 %{_bindir}/com.github.kmwallio.thiefmd
-%{_libdir}/libgxml-0.20.so.2
-%{_libdir}/libgxml-0.20.so.2.0.2
-/usr/include/gxml-0.20/gxml/gxml.h
-/usr/include/ultheme.h
-/usr/lib64/girepository-1.0/GXml-0.20.typelib
-/usr/lib64/pkgconfig/gxml-0.20.pc
-/usr/lib64/pkgconfig/ultheme.pc
 /usr/share/applications/com.github.kmwallio.thiefmd.desktop
 /usr/share/com.github.kmwallio.thiefmd/scripts/auto-render.min.js
 /usr/share/com.github.kmwallio.thiefmd/scripts/highlight.js
@@ -128,71 +120,61 @@ rm -vf %{buildroot}%{_libdir}/libultheme.a
 /usr/share/com.github.kmwallio.thiefmd/styles/katex.min.css
 /usr/share/com.github.kmwallio.thiefmd/styles/preview.css
 /usr/share/fonts/truetype/thiefmd/iAWriterDuospace-Regular.ttf
-/usr/share/gir-1.0/GXml-0.20.gir
 /usr/share/glib-2.0/schemas/com.github.kmwallio.thiefmd.gschema.xml
-/usr/share/gtksourceview-3.0/styles/thiefmd.xml
+/usr/share/gtksourceview-4/styles/thiefmd.xml
 /usr/share/icons/hicolor/128x128/apps/com.github.kmwallio.thiefmd.svg
 /usr/share/icons/hicolor/48x48/apps/com.github.kmwallio.thiefmd.svg
 /usr/share/icons/hicolor/64x64/apps/com.github.kmwallio.thiefmd.svg
 /usr/share/icons/hicolor/symbolicxsymbolic/apps/com.github.kmwallio.thiefmd.svg
-/usr/share/locale/ca/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/cs/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/da/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/de/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/el/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/en_GB/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/es/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/eu/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/fr/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/hu/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/id/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/pl/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/pt/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/pt_BR/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/ro/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/sl/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/sr/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/sr@latin/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/sv/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/uk/LC_MESSAGES/GXml-0.20.mo
-/usr/share/locale/zh_CN/LC_MESSAGES/GXml-0.20.mo
 /usr/share/metainfo/com.github.kmwallio.thiefmd.appdata.xml
-/usr/share/vala/vapi/gxml-0.20.deps
-/usr/share/vala/vapi/gxml-0.20.vapi
-/usr/share/vala/vapi/ultheme.vapi
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/css.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/def.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/dtd.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/dtl.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/html.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/javascript-expressions.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/javascript-functions-classes.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/javascript-literals.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/javascript-modules.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/javascript-statements.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/javascript-values.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/javascript.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/jsdoc.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/json.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/language-specs.its
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/language-specs.pot
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/language.dtd
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/language.rng
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/language2.rng
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/latex.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/markdown.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/rst.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/xml.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/xslt.lang
-/usr/share/com.github.kmwallio.thiefmd/gtksourceview-3.0/language-specs/yaml.lang
-
-%files devel
-%{_libdir}/libgxml-0.20.so
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/css.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/def.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/dtd.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/dtl.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/html.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/javascript-expressions.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/javascript-functions-classes.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/javascript-literals.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/javascript-modules.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/javascript-statements.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/javascript-values.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/javascript.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/jsdoc.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/json.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/language-specs.its
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/language-specs.pot
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/language.dtd
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/language.rng
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/language2.rng
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/latex.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/markdown.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/rst.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/xml.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/xslt.lang
+/usr/share/com.github.kmwallio.thiefmd/gtksourceview-4/language-specs/yaml.lang
+/usr/share/icons/hicolor/32x32/apps/com.github.kmwallio.thiefmd.svg
 
 %post -p /sbin/ldconfig
 %postun -p /sbin/ldconfig
 
 %changelog
+* Sat Oct 10 2020 kmwallio <mwallio@gmail.com> - 0.1.0
+- Import DocX, ePUB, HTML, and more, just drag the file onto a library folder
+- New Export Tool, change CSS, Page Size, and more
+- Library Search and Editor Search
+- Writing Statistics
+* Mon Oct 05 2020 kmwallio <mwallio@gmail.com> - 0.0.12
+- Update Dynamic CSS to include buttons and button hover
+- Determine light/dark based on luminance of editor theme
+- Add option to hide titles/go brandless
+- Add link to new themes site with original ThiefMD themes
+- Fix typos
+* Thu Oct 01 2020 kmwallio <mwallio@gmail.com> - 0.0.11
+- Write-Good support for writing suggestions
+* Tue Sep 29 2020 kmwallio <mwallio@gmail.com> - 0.0.10
+- Default to User's GTK Theme
+- Certain well-known hidden folders persist between restarts
+- Image path resolution for cover-image in ePub YAML front-matter
 * Fri Sep 18 2020 kmwallio <mwallio@gmail.com> - 0.0.9
 - This release is a bug fix release
 - Fix bug when trying to export with no file selected

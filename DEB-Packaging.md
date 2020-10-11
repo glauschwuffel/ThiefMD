@@ -8,9 +8,13 @@ Update list of new features
 
 ## Create new Package
 
-`debuild -us -uc`
+`debuild -S -sa`
 
 Packages will be in parent directory.
+
+## Push package to PPA
+
+`dput ppa:thiefmd/thiefmd ../com.github.kmwallio.thiefmd_0.0.0_source.changes`
 
 ## Cleaning
 

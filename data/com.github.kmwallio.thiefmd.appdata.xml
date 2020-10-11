@@ -29,19 +29,67 @@
   </keywords>
   <screenshots>
     <screenshot type="default">
-      <caption>ThiefMD, a Markdown Editor, with a file opened with syntax highlighting</caption>
-      <image>https://thiefmd.com/images/thiefmd.png</image>
-    </screenshot>
-    <screenshot>
       <caption>ThiefMD, a Markdown Editor, showing a Library view with an open file</caption>
       <image>https://thiefmd.com/images/thief_window.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>ThiefMD, a Markdown Editor, rendering a live preview of markdown being modified</caption>
+      <image>https://thiefmd.com/images/preview.png</image>
     </screenshot>
     <screenshot>
       <caption>ThiefMD, a Markdown Editor, showing Theme selection preferences to change the user interface</caption>
       <image>https://thiefmd.com/images/theme_preferences.png</image>
     </screenshot>
+    <screenshot>
+      <caption>ThiefMD, a Markdown Editor, showing Write-Good suggestions finding passive voice</caption>
+      <image>https://thiefmd.com/images/write-good.png</image>
+    </screenshot>
   </screenshots>
   <releases>
+    <release version="0.1.0" date="2020-10-10" urgency="low">
+      <description>
+        <p>Get things in out and done with ThiefMD.</p>
+        <ul>
+          <li>New File Search `Ctrl+F` and Library Search `Ctrl+Shift+F`</li>
+          <li>Import items. Just drag a docx, opt, ePUB, HTML, or whatever you feel like trying onto a folder in the Library to import</li>
+          <li>More Advanced Export Options. Change the Preview Theme, and PDF Page Size</li>
+          <li>Writing Statistics, get word count and reading count for an individual file, or a project in the library</li>
+        </ul>
+      </description>
+      <url>https://github.com/kmwallio/ThiefMD/releases/tag/v0.1.0-inandout</url>
+    </release>
+    <release version="0.0.12" date="2020-10-05" urgency="low">
+      <description>
+        <p>Can ThiefMD help you write better?</p>
+        <ul>
+          <li>Write-Good Support, highlight potential writing issues like long sentences, passive voice, repeat words, and more</li>
+          <li>Improved theme engine. We've added luminance detection to help keep the UI usable</li>
+          <li>Add option to go brandless, lose the UI, get lost in your writing</li>
+          <li>We've launched a new theme's site and theme generator. Make ThiefMD uniquely yours</li>
+        </ul>
+      </description>
+      <url>https://github.com/kmwallio/ThiefMD/releases/tag/v0.0.12-luminance</url>
+    </release>
+    <release version="0.0.11" date="2020-10-01" urgency="low">
+      <description>
+        <p>Can ThiefMD help you write better?</p>
+        <ul>
+          <li>Write-Good Support, highlight potential writing issues like long sentences, passive voice, repeat words, and more</li>
+        </ul>
+      </description>
+      <url>https://github.com/kmwallio/ThiefMD/releases/tag/v0.0.11-writegood</url>
+    </release>
+    <release version="0.0.10" date="2020-09-30" urgency="low">
+      <description>
+        <p>Share your writing, maybe publish that novel?</p>
+        <ul>
+          <li>Match User's Gtk Theme</li>
+          <li>Keep known SSG folders in hidden folders</li>
+          <li>Add support for searching static folders</li>
+        </ul>
+      </description>
+      <url>https://github.com/kmwallio/ThiefMD/releases/tag/v0.0.10-lookingood</url>
+    </release>
     <release version="0.0.9" date="2020-09-18" urgency="low">
       <description>
         <p>Share your writing, maybe publish that novel?</p>
@@ -54,7 +102,7 @@
           <li>Less bugs. Fixed an issue with duplicate listing in the Library.</li>
         </ul>
       </description>
-      <url>https://github.com/kmwallio/ThiefMD/releases/tag/v0.0.7-orderlyfashion</url>
+      <url>https://github.com/kmwallio/ThiefMD/releases/tag/v0.0.9-oops</url>
     </release>
     <release version="0.0.8" date="2020-09-17" urgency="low">
       <description>
@@ -67,7 +115,7 @@
           <li>Less bugs. Fixed an issue with duplicate listing in the Library.</li>
         </ul>
       </description>
-      <url>https://github.com/kmwallio/ThiefMD/releases/tag/v0.0.7-orderlyfashion</url>
+      <url>https://github.com/kmwallio/ThiefMD/releases/tag/v0.0.8-shareandcare</url>
     </release>
     <release version="0.0.7" date="2020-09-13" urgency="low">
       <description>
@@ -112,4 +160,8 @@
       <url>https://github.com/kmwallio/ThiefMD/releases/tag/v0.0.4-blogatog</url>
     </release>
   </releases>
+  <custom>
+    <value key="x-appcenter-color-primary">#FAFAFA</value>
+    <value key="x-appcenter-color-primary-text">rgb(12, 141, 177)</value>
+  </custom>
 </component>

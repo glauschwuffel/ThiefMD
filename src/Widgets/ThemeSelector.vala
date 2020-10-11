@@ -23,6 +23,105 @@ using Gtk;
 using Gdk;
 
 namespace ThiefMD.Widgets {
+    public class CssSelector : Gtk.Box {
+        private string css_type;
+        private Gtk.FlowBox app_box;
+        private Gee.LinkedList<Gtk.Widget> wids;
+        public CssSelector (string what) {
+            css_type = what;
+            wids = new Gee.LinkedList<Gtk.Widget> ();
+            build_ui ();
+        }
+
+        public void build_ui () {
+            app_box = new Gtk.FlowBox ();
+            app_box.margin = 6;
+            app_box.max_children_per_line = 3;
+            app_box.homogeneous = true;
+            app_box.expand = false;
+
+            var preview_box = new Gtk.ScrolledWindow (null, null);
+            preview_box.add (app_box);
+            preview_box.hexpand = true;
+            preview_box.vexpand = true;
+
+            var none = new CssPreview ("", css_type == "print");
+            var modest_splendor = new CssPreview ("modest-splendor", css_type == "print");
+            app_box.add (none);
+            app_box.add (modest_splendor);
+
+            load_css ();
+
+            add (preview_box);
+        }
+
+        public void refresh () {
+            while (!wids.is_empty) {
+                app_box.remove (wids.poll ());
+            }
+
+            load_css ();
+            show_all ();
+        }
+
+        public static Gee.LinkedList<string> list_css (string css_type = "print") {
+            Gee.LinkedList<string> styles = new Gee.LinkedList<string> ();
+            styles.add ("None");
+            styles.add ("modest-splendor");
+            try {
+                Dir css_dir = Dir.open (UserData.css_path, 0);
+
+                string? theme_pkg = "";
+                while ((theme_pkg = css_dir.read_name ()) != null) {
+                    string path = Path.build_filename (UserData.css_path, theme_pkg);
+                    if (!theme_pkg.has_prefix (".") && FileUtils.test(path, FileTest.IS_DIR)) {
+                        File print_css = File.new_for_path (Path.build_filename (UserData.css_path, theme_pkg, "print.css"));
+                        File preview_css = File.new_for_path (Path.build_filename (UserData.css_path, theme_pkg, "preview.css"));
+                        if (css_type == "print" && print_css.query_exists ()) {
+                            styles.add (theme_pkg);
+                        } else if (css_type == "preview" && preview_css.query_exists ()) {
+                            styles.add (theme_pkg);
+                        }
+                    }
+                }
+            } catch (Error e) {
+                warning ("Error loading css export packages: %s", e.message);
+            }
+
+            return styles;
+        }
+
+        public bool load_css () {
+            try {
+                Dir css_dir = Dir.open (UserData.css_path, 0);
+
+                string? theme_pkg = "";
+                while ((theme_pkg = css_dir.read_name ()) != null) {
+                    string path = Path.build_filename (UserData.css_path, theme_pkg);
+                    if (!theme_pkg.has_prefix (".") && FileUtils.test(path, FileTest.IS_DIR)) {
+                        File print_css = File.new_for_path (Path.build_filename (UserData.css_path, theme_pkg, "print.css"));
+                        File preview_css = File.new_for_path (Path.build_filename (UserData.css_path, theme_pkg, "preview.css"));
+                        if (css_type == "print" && print_css.query_exists ()) {
+                            var new_opt = new CssPreview (theme_pkg, true);
+                            new_opt.set_size_request (Constants.CSS_PREVIEW_WIDTH, Constants.CSS_PREVIEW_HEIGHT);
+                            app_box.add (new_opt);
+                            wids.add (new_opt);
+                        } else if (css_type == "preview" && preview_css.query_exists ()) {
+                            var new_opt = new CssPreview (theme_pkg, false);
+                            new_opt.set_size_request (Constants.CSS_PREVIEW_WIDTH, Constants.CSS_PREVIEW_HEIGHT);
+                            app_box.add (new_opt);
+                            wids.add (new_opt);
+                        }
+                    }
+                }
+            } catch (Error e) {
+                warning ("Error loading css export packages: %s", e.message);
+            }
+
+            return false;
+        }
+    }
+
     public class ThemeSelector : Gtk.Box {
         public Gtk.FlowBox preview_items;
         private Gtk.Grid app_box;
@@ -48,18 +147,26 @@ namespace ThiefMD.Widgets {
             preview_items = new Gtk.FlowBox ();
             preview_items.margin = 6;
             preview_box.add (preview_items);
+            preview_box.hexpand = true;
 
             drop_box = new PreviewDrop ();
             drop_box.xalign = 0;
+            drop_box.hexpand = true;
 
-            var border = new Gtk.Frame("Drop Style.ultheme:");
+            var border = new Gtk.Frame(_("Drop Style.ultheme:"));
             border.add (drop_box);
 
             app_box.attach (border, 0, 0, 1, 1);
             app_box.attach (preview_box, 0, 1, 1, 3);
             app_box.hexpand = true;
 
+            var get_themes = new Gtk.Label (_("Download <a href='https://themes.thiefmd.com/themes/'>more themes</a>."));
+            get_themes.use_markup = true;
+            get_themes.xalign = 0;
+
+            // preview_items.add (new UserTheme ());
             preview_items.add (new DefaultTheme ());
+            app_box.attach (get_themes, 0, 5, 1, 1);
             add (app_box);
 
             load_themes ();
@@ -159,7 +266,6 @@ namespace ThiefMD.Widgets {
                 uint target_type,
                 uint time)
             {
-                string file_to_parse = "";
                 File file = dnd_get_file (selection_data, target_type);
                 if (!file.query_exists ()) {
                     Gtk.drag_finish (context, false, false, time);

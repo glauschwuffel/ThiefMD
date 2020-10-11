@@ -26,6 +26,7 @@ using ThiefMD.Widgets;
 
 namespace ThiefMD.Controllers.Pandoc {
     public bool make_epub (string output_file, string markdown) {
+        var settings = AppSettings.get_default ();
         string resolved_mkd = resolve_paths (markdown);
         string temp_file = FileManager.save_temp_file (resolved_mkd);
         bool res = false;
@@ -37,6 +38,18 @@ namespace ThiefMD.Controllers.Pandoc {
                     "-o",
                     output_file
                 };
+                if (settings.preview_css != "") {
+                    File css_file = null;
+                    if (settings.preview_css == "modest-splendor") {
+                        css_file = File.new_for_path (Path.build_filename(Build.PKGDATADIR, "styles", "preview.css"));
+                    } else if (settings.preview_css != "") {
+                        css_file = File.new_for_path (Path.build_filename(UserData.css_path, settings.preview_css,"preview.css"));
+                    }
+                    if (css_file != null && css_file.query_exists ()) {
+                        command += "--css";
+                        command += css_file.get_path ();
+                    }
+                }
                 Subprocess pandoc = new Subprocess.newv (command, SubprocessFlags.STDERR_MERGE);
                 res = pandoc.wait ();
                 File temp = File.new_for_path (temp_file);
@@ -73,6 +86,36 @@ namespace ThiefMD.Controllers.Pandoc {
         return res;
     }
 
+    public bool make_md_from_file (string output_file_path, string input_file_path) {
+        File output_file = File.new_for_path (output_file_path);
+        File input_file = File.new_for_path (input_file_path);
+        bool res = false;
+        if (output_file.query_exists ()) {
+            warning ("%s already exists, exiting", output_file_path);
+            return res;
+        }
+
+        if (!input_file.query_exists ()) {
+            warning ("%s does not exist, exiting", output_file_path);
+            return res;
+        }
+
+        try {
+            string[] command = {
+                "pandoc",
+                "-o",
+                output_file.get_path (),
+                input_file.get_path ()
+            };
+            Subprocess pandoc = new Subprocess.newv (command, SubprocessFlags.STDERR_MERGE);
+            res = pandoc.wait ();
+        } catch (Error e) {
+            warning ("Could not generate epub: %s", e.message);
+        }
+
+        return res;
+    }
+
     public bool make_tex (string output_file, string markdown) {
         var settings = AppSettings.get_default ();
         string temp_file = "";
@@ -104,6 +147,62 @@ namespace ThiefMD.Controllers.Pandoc {
         return res;
     }
 
+    public Gee.LinkedList<string> file_import_paths (string markdown) {
+        Gee.LinkedList<string> sub_files = new Gee.LinkedList<string> ();
+
+        try {
+            Regex url_search = new Regex ("\\((.+?)\\)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
+            Regex src_search = new Regex ("src=['\"](.+?)['\"]", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
+            Regex css_url_search = new Regex ("url\\(['\"]?(.+?)['\"]?\\)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
+
+            url_search.replace_eval (
+                markdown,
+                (ssize_t) markdown.length,
+                0,
+                RegexMatchFlags.NOTEMPTY,
+                (match_info, result) =>
+                {
+                    var url = match_info.fetch (1);
+                    if (!url.contains (":")) {
+                        sub_files.add (url);
+                    }
+                    return false;
+                });
+
+            src_search.replace_eval (
+                markdown,
+                (ssize_t) markdown.length,
+                0,
+                RegexMatchFlags.NOTEMPTY,
+                (match_info, result) =>
+                {
+                    var url = match_info.fetch (1);
+                    if (!url.contains (":")) {
+                        sub_files.add (url);
+                    }
+                    return false;
+                });
+
+            css_url_search.replace_eval (
+                markdown,
+                (ssize_t) markdown.length,
+                0,
+                RegexMatchFlags.NOTEMPTY,
+                (match_info, result) =>
+                {
+                    var url = match_info.fetch (1);
+                    if (!url.contains (":")) {
+                        sub_files.add (url);
+                    }
+                    return false;
+                });
+        } catch (Error e) {
+            warning ("Could not find files: %s", e.message);
+        }
+
+        return sub_files;
+    }
+
     public string resolve_paths (string markdown, string path = "") {
         string processed_mk = markdown;
 
@@ -111,6 +210,7 @@ namespace ThiefMD.Controllers.Pandoc {
             Regex url_search = new Regex ("\\((.+?)\\)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
             Regex src_search = new Regex ("src=['\"](.+?)['\"]", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
             Regex css_url_search = new Regex ("url\\(['\"]?(.+?)['\"]?\\)", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
+            Regex cover_image_search = new Regex ("cover-image:\\s*['\"]?(.+?)['\"]?\\s*$", RegexCompileFlags.MULTILINE | RegexCompileFlags.CASELESS, 0);
 
             processed_mk = url_search.replace_eval (
                 processed_mk,
@@ -153,6 +253,19 @@ namespace ThiefMD.Controllers.Pandoc {
                         result.append ("\"");
                         return false;
                     });
+
+            processed_mk = cover_image_search.replace_eval (
+                processed_mk,
+                (ssize_t) processed_mk.length,
+                0,
+                RegexMatchFlags.NOTEMPTY,
+                (match_info, result) =>
+                {
+                    result.append ("cover-image: ");
+                    var url = match_info.fetch (1);
+                    result.append (find_file (url, path));
+                    return false;
+                });
         } catch (Error e) {
             warning ("Error generating preview: %s", e.message);
         }
@@ -182,6 +295,14 @@ namespace ThiefMD.Controllers.Pandoc {
             int idx = 0;
             while (search_path != "") {
                 file = Path.build_filename (search_path, url);
+                if (FileUtils.test (file, FileTest.EXISTS)) {
+                    File tmp = File.new_for_path (file);
+                    result = tmp.get_path ();
+                    break;
+                }
+
+                // Check in static folder
+                file = Path.build_filename (search_path, "static", url);
                 if (FileUtils.test (file, FileTest.EXISTS)) {
                     File tmp = File.new_for_path (file);
                     result = tmp.get_path ();

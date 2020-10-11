@@ -28,27 +28,33 @@ It will be used for sanity checking the style-sheet used.
 ---
 
 ```vala
-    switch (target_type) {
-        case Target.STRING:
-            selection_data.set (
-                selection_data.get_target(),
-                BYTE_BITS,
-                (uchar [])_sheet_path.to_utf8());
-        break;
-        default:
-            warning ("No known action to take.");
-        break;
-    }
+        private bool writecheck_scheduled = false;
+        private void write_good_recheck () {
+            if (writegood_limit.can_do_action () && writecheck_active) {
+                writegood.recheck_all ();
+            } else if (writecheck_active) {
+                if (!writecheck_scheduled) {
+                    writecheck_scheduled = true;
+                    Timeout.add (1500, () => {
+                        if (writecheck_active) {
+                            writegood.recheck_all ();
+                        }
+                        writecheck_scheduled = false;
+                        return false;
+                    });
+                }
+            }
+        }
 ```
 
 ### Markdown Rendered Image
 
-![](docs/images/matt-hoffman-wheat.jpg)
+![](/images/matt-hoffman-wheat.jpg)
 
 ### HTML Rendered Image
 
-<div><img src="docs/images/matt-hoffman-wheat.jpg" /></div>
- 
+<div><img src="/images/matt-hoffman-wheat.jpg" /></div>
+
 ### Tables
 
 | Syntax | Description |
@@ -65,3 +71,7 @@ I'm basically ~~stealing~~ copying and pasting examples from [https://www.markdo
 ### Math (requires libmarkdown 2.2.0 or greater)
 
 $$\int_{a}^{b} x^2 dx$$
+
+$$f(x)=a_0+a_2x^2$$
+
+$$x_{1,2}=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$

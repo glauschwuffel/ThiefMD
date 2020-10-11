@@ -38,11 +38,15 @@ namespace ThiefMD.Widgets {
         //
 
         public GtkSpell.Checker spell = null;
+        public WriteGood.Checker writegood = null;
+        private TimedMutex writegood_limit;
         public Gtk.TextTag warning_tag;
         public Gtk.TextTag error_tag;
+        public Gtk.TextTag highlight_tag;
         private int last_width = 0;
         private int last_height = 0;
         private bool spellcheck_active;
+        private bool writecheck_active;
         private bool typewriter_active;
 
         //
@@ -58,7 +62,7 @@ namespace ThiefMD.Widgets {
             settings.changed.connect (update_settings);
 
             if (!open_file (file_path)) {
-                set_text (Constants.FIRST_USE, true);
+                set_text (Constants.FIRST_USE.printf (ThiefProperties.THIEF_TIPS[Random.int_range(0, ThiefProperties.THIEF_TIPS.length)]), true);
                 editable = false;
             }
 
@@ -81,6 +85,13 @@ namespace ThiefMD.Widgets {
             error_tag = new Gtk.TextTag ("error_bg");
             error_tag.underline = Pango.Underline.ERROR;
 
+            highlight_tag = new Gtk.TextTag ("search-match");
+            highlight_tag.background_rgba = Gdk.RGBA () { red = 1.0, green = 0.8, blue = 0.13, alpha = 1.0 };
+            highlight_tag.foreground_rgba = Gdk.RGBA () { red = 0.0, green = 0.0, blue = 0.0, alpha = 1.0 };
+            highlight_tag.background_set = true;
+            highlight_tag.foreground_set = true;
+
+
             buffer.tag_table.add (error_tag);
             buffer.tag_table.add (warning_tag);
 
@@ -100,6 +111,7 @@ namespace ThiefMD.Widgets {
             });
             dynamic_margins ();
             spell = new GtkSpell.Checker ();
+            writegood = new WriteGood.Checker ();
 
             if (settings.spellcheck) {
                 debug ("Spellcheck active");
@@ -110,9 +122,18 @@ namespace ThiefMD.Widgets {
                 spellcheck_active = false;
             }
 
+            if (settings.writegood) {
+                writegood.attach (this);
+                writecheck_active = true;
+            } else {
+                writegood.detach ();
+                writecheck_active = false;
+            }
+
             last_width = settings.window_width;
             last_height = settings.window_height;
             preview_mutex = new TimedMutex ();
+            writegood_limit = new TimedMutex (1500);
         }
 
         public signal void changed ();
@@ -180,6 +201,12 @@ namespace ThiefMD.Widgets {
                         Timeout.add (Constants.AUTOSAVE_TIMEOUT, autosave);
                     }
 
+                    if (settings.writegood) {
+                        writecheck_active = true;
+                        writegood.attach (this);
+                        write_good_recheck ();
+                    }
+
                     //
                     // Register for redrawing of window for handling margins and other
                     // redrawing
@@ -211,6 +238,10 @@ namespace ThiefMD.Widgets {
                         buffer.changed.disconnect (on_change_notification);
                         size_allocate.disconnect (dynamic_margins);
                         settings.changed.disconnect (update_settings);
+                        if (settings.writegood) {
+                            writecheck_active = false;
+                            writegood.detach ();
+                        }
                     }
                     editable = false;
                     active = false;
@@ -340,6 +371,24 @@ namespace ThiefMD.Widgets {
             return settings.autosave;
         }
 
+        private bool writecheck_scheduled = false;
+        private void write_good_recheck () {
+            if (writegood_limit.can_do_action () && writecheck_active) {
+                writegood.recheck_all ();
+            } else if (writecheck_active) {
+                if (!writecheck_scheduled) {
+                    writecheck_scheduled = true;
+                    Timeout.add (1500, () => {
+                        if (writecheck_active) {
+                            writegood.recheck_all ();
+                        }
+                        writecheck_scheduled = false;
+                        return false;
+                    });
+                }
+            }
+        }
+
         private Gtk.MenuItem? get_selected (Gtk.Menu? menu) {
             if (menu == null) return null;
             var active = menu.get_active () as Gtk.MenuItem;
@@ -376,24 +425,34 @@ namespace ThiefMD.Widgets {
                 is_modified = false;
             }
 
+            if (writecheck_active) {
+                write_good_recheck ();
+            }
+
             // Move the preview if present
             update_preview ();
         }
 
         private TimedMutex preview_mutex;
+        private bool preview_scheduled = false;
         public void update_preview () {
             if (!preview_mutex.can_do_action ()) {
+                if (!preview_scheduled) {
+                    preview_scheduled = true;
+                    Timeout.add (750, () => {
+                        preview_scheduled = false;
+                        update_preview ();
+                        return false;
+                    });
+                }
                 return;
             }
-
             var cursor = buffer.get_insert ();
             if (cursor != null) {
                 Gtk.TextIter cursor_iter;
                 Gtk.TextIter start, end;
                 buffer.get_bounds (out start, out end);
-
                 buffer.get_iter_at_mark (out cursor_iter, cursor);
-                buffer.get_iter_at_mark (out cursor_iter, cursor);;
 
                 string before = buffer.get_text (start, cursor_iter, true);
                 string last_line = before.substring (before.last_index_of ("\n") + 1);
@@ -511,8 +570,6 @@ namespace ThiefMD.Widgets {
         }
 
         public void dynamic_margins () {
-            var settings = AppSettings.get_default ();
-
             if (!ThiefApp.get_instance ().ready) {
                 return;
             }
@@ -618,6 +675,15 @@ namespace ThiefMD.Widgets {
             set_scheme (settings.get_valid_theme_id ());
 
             spellcheck_enable();
+
+            if (!settings.writegood && writecheck_active) {
+                writecheck_active = false;
+                writegood.detach ();
+            } else if (settings.writegood && !writecheck_active) {
+                writecheck_active = true;
+                writegood.attach (this);
+                write_good_recheck ();
+            }
         }
 
         private void spellcheck_enable () {
@@ -628,7 +694,6 @@ namespace ThiefMD.Widgets {
         public void set_scheme (string id) {
             if (id == "thiefmd") {
                 // Reset application CSS to coded
-                get_default_scheme ();
                 var style_manager = Gtk.SourceStyleSchemeManager.get_default ();
                 var style = style_manager.get_scheme (id);
                 buffer.set_style_scheme (style);
@@ -637,16 +702,8 @@ namespace ThiefMD.Widgets {
                 var style = UI.UserSchemes ().get_scheme (id);
                 buffer.set_style_scheme (style);
             }
-        }
 
-        private string get_default_scheme () {
-            var provider = new Gtk.CssProvider ();
-
-            provider.load_from_resource ("/com/github/kmwallio/thiefmd/app-stylesheet.css");
-            Gtk.StyleContext.add_provider_for_screen (Gdk.Screen.get_default (), provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-            Gtk.Settings.get_default ().gtk_application_prefer_dark_theme = false;
-
-            return "thiefmd";
+            UI.load_css_scheme ();
         }
 
         public bool move_typewriter_scolling () {
@@ -672,6 +729,9 @@ namespace ThiefMD.Widgets {
 
             var settings = AppSettings.get_default ();
             this.populate_popup.connect ((source, menu) => {
+                Gtk.SeparatorMenuItem sep = new Gtk.SeparatorMenuItem ();
+                menu.add (sep);
+
                 Gtk.MenuItem menu_insert_datetime = new Gtk.MenuItem.with_label (_("Insert Datetime"));
                 menu_insert_datetime.activate.connect (() => {
                     DateTime now = new DateTime.now_local ();
@@ -682,7 +742,6 @@ namespace ThiefMD.Widgets {
                 Gtk.MenuItem menu_insert_frontmatter = new Gtk.MenuItem.with_label (_("Insert YAML Frontmatter"));
                 menu_insert_frontmatter.activate.connect (() => {
                     if (!buffer.text.has_prefix ("---")) {
-                        var settings_menu = AppSettings.get_default ();
                         int new_cursor_location = 0;
                         Regex date = null;
                         try {
@@ -697,6 +756,8 @@ namespace ThiefMD.Widgets {
                         string parent_folder = file.get_parent ().get_basename ().down ();
                         string page_type = (parent_folder.contains ("post") || parent_folder.contains ("draft")) ? "post" : "page";
                         string current_title = file.get_basename ();
+                        string parent_path = file.get_parent ().get_path ().down ();
+                        bool add_draftmatter = parent_path.contains ("content/post");
                         current_title = current_title.substring (0, current_title.last_index_of ("."));
 
                         // Attempt to convert the file name into a title for the post
@@ -718,17 +779,7 @@ namespace ThiefMD.Widgets {
                             warning ("Could not generate title");
                         }
 
-                        current_title = current_title.replace ("_", " ");
-                        current_title = current_title.replace ("-", " ");
-                        string [] parts = current_title.split (" ");
-                        if (parts != null && parts.length != 0) {
-                            current_title = "";
-                            foreach (var part in parts) {
-                                part = part.substring (0, 1).up () + part.substring (1).down ();
-                                current_title += part + " ";
-                            }
-                            current_title = current_title.chomp ();
-                        }
+                        current_title = make_title (current_title);
 
                         // Build the front matter
                         string frontmatter = "---\n";
@@ -739,6 +790,9 @@ namespace ThiefMD.Widgets {
                         // Only insert datetime if we think it's a post
                         if (page_type == "post") {
                             frontmatter += "date: " + current_time + "\n";
+                            if (add_draftmatter) {
+                                frontmatter += "draft: true\n";
+                            }
                         }
                         frontmatter += "---\n";
 

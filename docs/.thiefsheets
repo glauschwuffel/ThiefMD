@@ -8,13 +8,18 @@
     "_includes",
     "_layouts",
     "changeblog",
-    "images"
+    "images",
+    "css"
   ],
   "folder-order" : [
+    "_drafts",
     "_posts",
     "tips",
     "about",
     "deets",
-    "shortcuts"
+    "shortcuts",
+    "download",
+    "opensource",
+    "css"
   ]
 }

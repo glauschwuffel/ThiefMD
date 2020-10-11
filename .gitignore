@@ -2,7 +2,9 @@ build/
 .vscode
 docs/_site
 .buildconfig
-subprojects/gxml/*
+subprojects/ultheme
 subprojects/ultheme/*
+subprojects/writegood
+subprojects/writegood/*
 flatpak/.flatpak-builder/*
 flatpak/build*
